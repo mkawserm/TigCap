@@ -1,4 +1,8 @@
 #include "pieceboard.h"
+#include <QPropertyAnimation>
+
+
+
 
 using namespace std;
 
@@ -44,6 +48,11 @@ void PieceBoard:: debugPrintGraph()
     }
     //*/
 }
+
+
+
+
+
 void PieceBoard:: make4( int u , int v )
 {
     adjMove[u].push_back(v);
@@ -57,6 +66,9 @@ void PieceBoard:: make4( int u , int v )
     adjMove[v].push_back(u);
     if(deb)this->ConnectTwoPoints(P[u],P[v]);
 }
+
+
+
 void PieceBoard:: make5( int u , int v )
 {
     adjMove[u].push_back(v);
@@ -64,6 +76,8 @@ void PieceBoard:: make5( int u , int v )
     if(deb)this->ConnectTwoPoints(P[u],P[v]);
     return ;
 }
+
+
 bool PieceBoard:: drawGraph()
 {
     int i,j;
@@ -214,6 +228,15 @@ PieceBoard::PieceBoard()
         i--;
     }
 
+
+    //calling play
+    //this->play();
+    //this->MovePoint(10,12);
+    P[1]->setRED();
+    this->MovePoint(1,2);
+    P[10]->setBLACK();
+    this->MovePoint(10,1);
+
 }
 
 void PieceBoard:: placePieceInit()
@@ -266,10 +289,49 @@ QPainterPath PieceBoard::shape() const
 
 void PieceBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
+    //Q_UNUSED(painter);
     painter->setPen(Qt::NoPen);
     //painter->setBrush(point_color);
 
     //painter->setPen(QPen(Qt::black, 0));
     //painter->drawEllipse(0,0,point_size,point_size);
+}
+
+
+void PieceBoard::MovePoint(int src, int dest){
+    source = this->P[src];
+    destination = this->P[dest];
+
+    animobject = new Point(source->x(),source->y(),this);
+
+
+    if (source->isBlack() ) animobject->setBLACK();
+    else if(source->isRed() ) animobject->setRED();
+    //source->setINVISIBLE();
+    source->setBoardVertex();//Make it a board Vertex
+
+
+
+    qDebug() << "Inside MovePoint";
+    //qDebug() << source->x();
+    //qDebug() << destination->x();
+
+    QPropertyAnimation *animation = new QPropertyAnimation(animobject, "pos");
+    animation->setDuration(1000);
+    animation->setEndValue(destination->pos());
+    this->connect(animation, SIGNAL(finished()), this ,SLOT(animation_finished()) );
+
+    animation->start();
+
+
+
+
+}
+
+void PieceBoard::animation_finished(){
+    qDebug() << "called animation finished";
+
+    if ( animobject->isBlack() ) destination->setBLACK();
+    else if (animobject->isRed() ) destination->isRed();
 }
 

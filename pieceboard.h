@@ -17,6 +17,7 @@
 #include <QPoint>
 #include <QRectF>
 #include <QGraphicsItem>
+#include <QGraphicsObject>
 
 #include "point.h"
 #include "edge.h"
@@ -29,7 +30,9 @@ using namespace std;
 
 const int MX = 200;
 
-class PieceBoard : public QGraphicsItem{
+class PieceBoard : public QGraphicsObject{
+
+    Q_OBJECT
     private:
         QRectF piece_board_size;
         int scaleF;
@@ -68,6 +71,15 @@ class PieceBoard : public QGraphicsItem{
 
         void placePieceInit();
         void play();
+
+        void MovePoint(int src,int dest);// Move a point from source to destination
+
+    private:
+        Point *source;
+        Point *destination;
+        Point *animobject;
+    private slots:
+        void animation_finished();
 };
 
 #endif // PIECEBOARD_H
