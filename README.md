@@ -1,4 +1,4 @@
 TigCap
 ======
 
-A board game
+A Two player board game
