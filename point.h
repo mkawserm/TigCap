@@ -49,6 +49,7 @@ private:
     bool is_board_vertex;
 
 public:
+    bool color; /// empty , black , red = 0 , 1 , 2
     Point(int x ,int y , QGraphicsItem *parent );
     enum { Type = UserType + 1 };
     int type() const { return Type; }

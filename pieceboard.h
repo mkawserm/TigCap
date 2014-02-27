@@ -22,6 +22,7 @@
 #include "edge.h"
 
 #include "_macro.h"
+#include "_Tester.h"
 #include <vector>
 using namespace std;
 
@@ -36,7 +37,7 @@ class PieceBoard : public QGraphicsItem{
         int h,w,rowLine,colLine;
         int nVertexMesh; // total screen
         int nVertexBrd;
-        Point *P[ MX + 10 ];
+
         vector < int > adjMove[MX+2];// Built on Node BoardId
         vector < int > adjJump[MX+2];// Built on Node BoardId
         int idInMeshXY[MX+2][MX+2]; // Full Board / Mesh Vertex Mappings
@@ -47,9 +48,8 @@ class PieceBoard : public QGraphicsItem{
         int idInB[40]; /// 0 based id in Board
         int idInM[100];/// 0 based
         lli maskBlack , maskRed;
-
     public:
-
+        Point *P[ MX + 10 ];
         PieceBoard();
         enum { Type = UserType + 4 };
         int type() const { return Type; }
@@ -65,6 +65,9 @@ class PieceBoard : public QGraphicsItem{
         bool drawGraph(); // check duplicity of edge
         void showP( int x );
         void debugPrintGraph();
+
+        void placePieceInit();
+        void play();
 };
 
 #endif // PIECEBOARD_H

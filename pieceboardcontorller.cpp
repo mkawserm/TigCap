@@ -16,9 +16,9 @@ PieceBoardController::PieceBoardController(QWidget *parent)
     setRenderHint(QPainter::Antialiasing);
     setTransformationAnchor(AnchorUnderMouse);
 
-    PieceBoard * _piece_board = new PieceBoard();
-    _game_scene->addItem(_piece_board);
-
+    PieceBoard * myBoard = new PieceBoard();
+    _game_scene->addItem(myBoard);
+    myBoard->play();
     setFixedSize(600,600);
 
 

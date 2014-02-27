@@ -6,7 +6,7 @@
 
 Point::Point(int x, int y,QGraphicsItem *parent) : QGraphicsObject(parent)
 {
-
+    color = 0;
     point_x = x;
     point_y = y;
     point_color = QColor(255,255,255); /*Making The Point Invisible . The Bangladeshi Style :D */

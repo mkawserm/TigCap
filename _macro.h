@@ -8,6 +8,8 @@ typedef long long lli;
 #define rep(i,a) for( i = 0 ; i < (a) ; i++ )
 #define SZ( x ) ((int) x.size())
 
+#define _flipAt( x , i ) ( (x) ^ (1LL<<i))
+#define _isOn( x , i ) ( (x) & ( 1LL<<i ) )
 #define out qDebug()
 
 #endif // MACRO_H

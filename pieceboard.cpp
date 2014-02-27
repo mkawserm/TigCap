@@ -44,9 +44,6 @@ void PieceBoard:: debugPrintGraph()
     }
     //*/
 }
-
-
-
 void PieceBoard:: make4( int u , int v )
 {
     adjMove[u].push_back(v);
@@ -60,9 +57,6 @@ void PieceBoard:: make4( int u , int v )
     adjMove[v].push_back(u);
     if(deb)this->ConnectTwoPoints(P[u],P[v]);
 }
-
-
-
 void PieceBoard:: make5( int u , int v )
 {
     adjMove[u].push_back(v);
@@ -70,9 +64,6 @@ void PieceBoard:: make5( int u , int v )
     if(deb)this->ConnectTwoPoints(P[u],P[v]);
     return ;
 }
-
-
-
 bool PieceBoard:: drawGraph()
 {
     int i,j;
@@ -96,9 +87,9 @@ bool PieceBoard:: drawGraph()
     return true;
 }
 
-PieceBoard::PieceBoard(){
+PieceBoard::PieceBoard()
+{
     /*Defining PieceBoard Size*/
-    //setAcceptDrops(true);
     int i,j,k;
     scaleF  = 52;
     deb     = false;
@@ -136,14 +127,6 @@ PieceBoard::PieceBoard(){
     Point *p2 = P[idInMeshXY[0][10]];
     Point *p3 = P[idInMeshXY[6][10]];
     Point *p4 = P[idInMeshXY[6][0]];
-
-    //qDebug() << "ID: " << P[ idInMeshXY[6][10] ]->x() << P[ idInMeshXY[6][10] ]->y() ;
-
-    p1->setBoardVertex();
-    p2->setRED();
-
-
-
 
     this->ConnectTwoPoints(p1,p2);
     this->ConnectTwoPoints(p2,p3);
@@ -213,23 +196,54 @@ PieceBoard::PieceBoard(){
     /// Calculating Jump End
 
     qDebug() << drawGraph();
-    debugPrintGraph();
+    //debugPrintGraph();
 
-
-
+    /// Setting Colors At Point, Already Set to Empty = true
+    /// Also Setting Masks
+    maskBlack = maskRed = 0;
+    rep(i,16)
+    {
+        P[ idInB[ i ] ]->color = 1;
+        maskBlack = _flipAt( maskBlack , i );
+    }
+    i = nVertexBrd - 1;
+    rep(j,16)
+    {
+        P[ idInB[ i ] ]->color = 2;
+        maskRed = _flipAt( maskRed , i );
+        i--;
+    }
 
 }
 
+void PieceBoard:: placePieceInit()
+{
+    int i;
+    rep(i,nVertexBrd)
+    {
+        //P[ idInB[i] ] -> setBoardVertex();
+    }
+    rep(i,nVertexBrd)
+    {
+        if( _isOn( maskBlack , i ) )
+        {
+            P[idInB[i]]->setBLACK();
+        }
+        if( _isOn( maskRed , i ) )
+        {
+            P[idInB[i]]->setRED();
+        }
+    }
+}
+void PieceBoard::play()
+{
+    out << "here I am" ;
+    placePieceInit();
 
+}
 
 void PieceBoard::ConnectTwoPoints(Point *p1,Point *p2){
     new Edge(p1,p2,this);
-    //p1->enableDrops();
-    //p2->enableDrops();
-    //p1->setBLACK();
-    //p1->enableGrab();
-    //p2->enableGrab();
-
 }
 
 
@@ -252,6 +266,10 @@ QPainterPath PieceBoard::shape() const
 
 void PieceBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
-    Q_UNUSED(painter);
+    painter->setPen(Qt::NoPen);
+    //painter->setBrush(point_color);
+
+    //painter->setPen(QPen(Qt::black, 0));
+    //painter->drawEllipse(0,0,point_size,point_size);
 }
 
