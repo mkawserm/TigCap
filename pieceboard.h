@@ -78,6 +78,7 @@ class PieceBoard : public QGraphicsObject{
         Point *source;
         Point *destination;
         Point *animobject;
+
     private slots:
         void animation_finished();
 };

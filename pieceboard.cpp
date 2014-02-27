@@ -3,7 +3,6 @@
 
 
 
-
 using namespace std;
 
 void PieceBoard:: debugPrintGraph()
@@ -232,10 +231,10 @@ PieceBoard::PieceBoard()
     //calling play
     //this->play();
     //this->MovePoint(10,12);
-    P[1]->setRED();
-    this->MovePoint(1,2);
-    P[10]->setBLACK();
-    this->MovePoint(10,1);
+    P[1]->setBLACK();
+    this->MovePoint(1,66);
+    P[16]->setBLACK();
+    this->MovePoint(16,12);
 
 }
 
@@ -302,7 +301,10 @@ void PieceBoard::MovePoint(int src, int dest){
     source = this->P[src];
     destination = this->P[dest];
 
+
     animobject = new Point(source->x(),source->y(),this);
+
+    //animobject->setZValue(0.3);
 
 
     if (source->isBlack() ) animobject->setBLACK();
@@ -325,11 +327,17 @@ void PieceBoard::MovePoint(int src, int dest){
 
 
 
-
 }
+
+
+
+
 
 void PieceBoard::animation_finished(){
     qDebug() << "called animation finished";
+
+
+
 
     if ( animobject->isBlack() ) destination->setBLACK();
     else if (animobject->isRed() ) destination->isRed();

@@ -12,7 +12,7 @@ PieceBoardController::PieceBoardController(QWidget *parent)
     //_game_scene;
     setScene(_game_scene);/*Adding into The PieceBoard QGraphicsView*/
 
-    setViewportUpdateMode(BoundingRectViewportUpdate);
+    setViewportUpdateMode(FullViewportUpdate);
     setRenderHint(QPainter::Antialiasing);
     setTransformationAnchor(AnchorUnderMouse);
 

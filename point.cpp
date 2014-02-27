@@ -6,6 +6,7 @@
 
 Point::Point(int x, int y,QGraphicsItem *parent) : QGraphicsObject(parent)
 {
+    //this->setZValue(0.5);
     color = 0;
     point_x = x;
     point_y = y;
@@ -41,7 +42,7 @@ void Point::setBLACK(){
     this->is_visible = true;
     this->is_black = true;
     this->is_red = false;
-
+    this->point_size = 10;
     point_color = QColor(0,0,0);
 
     this->enableDrops();
@@ -56,7 +57,7 @@ void Point::setRED(){
     this->is_visible = true;
     this->is_red = true;
     this->is_black = false;
-
+    this->point_size = 10;
     point_color = QColor(255,0,0);
 
     this->enableDrops();
@@ -71,7 +72,7 @@ void Point::setINVISIBLE(){
     this->is_red = false;
     this->is_black = false;
     this->is_board_vertex = false;
-
+    point_size = 1;
     point_color = QColor(255,255,255);
 
     this->disableDrops();
@@ -85,10 +86,11 @@ void Point::setINVISIBLE(){
 
 void Point::setBoardVertex(){
     this->setINVISIBLE();
-
+    this->point_size = 10;
     this->is_board_vertex = true;
     this->enableDrops(); /*Board Vertex and Red and Black Can Contain Point*/
     this->disableGrab();
+    this->update();
 }
 
 

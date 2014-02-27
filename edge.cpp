@@ -2,6 +2,7 @@
 
 Edge::Edge(Point *p1, Point *p2,QGraphicsItem *parent)
 {
+    //this->setZValue(0.9);
     p1 = p1;
     p2 = p2;
     edge_color = QColor(0,0,0);
