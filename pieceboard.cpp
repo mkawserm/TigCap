@@ -397,6 +397,8 @@ void PieceBoard::animation_finished(){
 
     if ( animobject->isBlack() ) destination->setBLACK();
     else if (animobject->isRed() ) destination->isRed();
+    //animobject->setBoardVertex();
+    delete animobject;
 
 
     if(whose_turn == ComputerTurn ){
