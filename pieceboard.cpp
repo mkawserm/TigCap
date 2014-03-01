@@ -228,13 +228,15 @@ PieceBoard::PieceBoard()
     }
 
 
-    //calling play
-    //this->play();
-    //this->MovePoint(10,12);
-    //P[1]->setBLACK();
-    //this->MovePoint(1,66);
-    //P[16]->setBLACK();
-    //this->MovePoint(16,12);
+
+    //Demonstration How To Initiate Computer Move Sequence
+    P[1]->setBLACK();
+    P[10]->setBLACK();
+    this->computer_moves.append ( qMakePair(1,66) );
+    this->computer_moves.append ( qMakePair(10,12) );
+    whose_turn = ComputerTurn;
+    this->startComputerMove();
+
     rep(i,MX)
     {
         pInfo.adjJump[i] = adjJump[i];
@@ -288,7 +290,8 @@ void PieceBoard::play()
             out << tmp.lastMoveSeq[j] ;
             if( !j ) continue;
             d = tmp.lastMoveSeq[j];
-            MovePoint( s , d );
+
+            //MovePoint( s , d );
             //MovePoint1( d , s );
             //MovePoint( d , s );
             pi.push_back(make_pair(s,d));
@@ -371,14 +374,39 @@ void PieceBoard::MovePoint(int src, int dest){
 
 
 
+void PieceBoard::startComputerMove(){
+    if (whose_turn == ComputerTurn){
+
+            if ( !this->computer_moves.isEmpty() ){
+                QPair<int,int> temp = this->computer_moves.at(0);
+                this->MovePoint(temp.first,temp.second);
+            }
+
+    }
+
+}
+
+
 
 void PieceBoard::animation_finished(){
     qDebug() << "called animation finished";
 
-
-
-
     if ( animobject->isBlack() ) destination->setBLACK();
     else if (animobject->isRed() ) destination->isRed();
+
+
+    if(whose_turn == ComputerTurn ){
+        this->computer_moves.takeFirst();
+        if ( !this->computer_moves.isEmpty() ){
+            QPair<int,int> temp = this->computer_moves.at(0);
+            this->MovePoint(temp.first,temp.second);
+        }
+        else{
+            whose_turn = HumanTurn;
+        }
+
+
+
+    }
 }
 

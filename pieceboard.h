@@ -13,22 +13,26 @@
  **/
 
 
+/*Qt's Header*/
 #include <QMap>
+#include <QPair>
+#include <QList>
 #include <QPoint>
 #include <QRectF>
 #include <QGraphicsItem>
 #include <QGraphicsObject>
 
-#include "point.h"
-#include "edge.h"
-
-#include "_macro.h"
-#include "_Tester.h"
+/*C++ Standard Header*/
 #include <vector>
-#include "gamestate.h"
-
 #include <algorithm>
 using namespace std;
+
+/*TigCap Own Header*/
+#include "edge.h"
+#include "point.h"
+#include "_macro.h"
+#include "_Tester.h"
+#include "gamestate.h"
 
 
 class PieceBoard : public QGraphicsObject{
@@ -76,7 +80,6 @@ class PieceBoard : public QGraphicsObject{
         void play();
 
         void MovePoint(int src,int dest);// Move a point from source to destination
-        void MovePoint1(int src,int dest);
     private:
         Point *source;
         Point *destination;
@@ -84,6 +87,21 @@ class PieceBoard : public QGraphicsObject{
 
     private slots:
         void animation_finished();
+
+    private:
+        /* Here is the idea how will animate Computer
+        * move sequence one after another.
+        * We will cretae a QList< QPair<int,int> > where we will
+        * store all the moves Point index.
+        * A method startComputerMove will initiate
+        * the move sequence.
+        */
+    QList < QPair<int,int> > computer_moves;
+    enum Turn {HumanTurn,ComputerTurn};
+    Turn whose_turn;
+
+    public:
+        void startComputerMove();
 };
 
 #endif // PIECEBOARD_H
