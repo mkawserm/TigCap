@@ -231,11 +231,17 @@ PieceBoard::PieceBoard()
     //calling play
     //this->play();
     //this->MovePoint(10,12);
-    P[1]->setBLACK();
-    this->MovePoint(1,66);
-    P[16]->setBLACK();
-    this->MovePoint(16,12);
-
+    //P[1]->setBLACK();
+    //this->MovePoint(1,66);
+    //P[16]->setBLACK();
+    //this->MovePoint(16,12);
+    rep(i,MX)
+    {
+        pInfo.adjJump[i] = adjJump[i];
+        pInfo.adjMove[i] = adjMove[i];
+    }
+    rep(i,40) pInfo.idInB[i] = idInB[i];
+    rep(i,100) pInfo.idInM[i] = idInM[i];
 }
 
 void PieceBoard:: placePieceInit()
@@ -243,7 +249,7 @@ void PieceBoard:: placePieceInit()
     int i;
     rep(i,nVertexBrd)
     {
-        //P[ idInB[i] ] -> setBoardVertex();
+        P[ idInB[i] ] -> setBoardVertex();
     }
     rep(i,nVertexBrd)
     {
@@ -260,7 +266,42 @@ void PieceBoard:: placePieceInit()
 void PieceBoard::play()
 {
     out << "here I am" ;
+    int i;
     placePieceInit();
+    GameState curState( maskBlack , maskRed , &pInfo );
+    out << curState.isTerminal();
+    GameState tmp( 0 , 0 , NULL ); int sz;
+    curState.setAdj( true );
+
+    sz = SZ( curState.child );
+    out << "total child" << sz ;
+    int s,d,j;
+    vector < pair < int , int > > pi;
+    rep(i,sz)
+    {
+        tmp = curState.child[i];
+        //out << idInB[i] << "->" << SZ( adjMove[ idInB[i] ] ) << SZ( tmp.lastMoveSeq );
+        //if( ! SZ( tmp.lastMoveSeq ) ) continue;
+        s = tmp.lastMoveSeq[0];
+        rep(j,SZ( tmp.lastMoveSeq ) )
+        {
+            out << tmp.lastMoveSeq[j] ;
+            if( !j ) continue;
+            d = tmp.lastMoveSeq[j];
+            MovePoint( s , d );
+            //MovePoint1( d , s );
+            //MovePoint( d , s );
+            pi.push_back(make_pair(s,d));
+            s = d;
+        }
+        reverse( pi.begin() , pi.end() );
+        int k = 1000000;
+        while(k--);
+        rep(j,SZ(pi))
+        {
+            //MovePoint(pi[j].second,pi[j].first);
+        }
+    }
 
 }
 
@@ -324,9 +365,7 @@ void PieceBoard::MovePoint(int src, int dest){
     this->connect(animation, SIGNAL(finished()), this ,SLOT(animation_finished()) );
 
     animation->start();
-
-
-
+    movedHuman = true;
 }
 
 

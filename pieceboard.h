@@ -25,10 +25,11 @@
 #include "_macro.h"
 #include "_Tester.h"
 #include <vector>
+#include "gamestate.h"
+
+#include <algorithm>
 using namespace std;
 
-
-const int MX = 200;
 
 class PieceBoard : public QGraphicsObject{
 
@@ -40,19 +41,21 @@ class PieceBoard : public QGraphicsObject{
         int h,w,rowLine,colLine;
         int nVertexMesh; // total screen
         int nVertexBrd;
-
-        vector < int > adjMove[MX+2];// Built on Node BoardId
-        vector < int > adjJump[MX+2];// Built on Node BoardId
         int idInMeshXY[MX+2][MX+2]; // Full Board / Mesh Vertex Mappings
         int xxInMesh[MX+2];
         int yyInMesh[MX+2];
         int xxAtM[40]; // x and y of Mesh in Board, at Mask position
         int yyAtM[40];
-        int idInB[40]; /// 0 based id in Board
-        int idInM[100];/// 0 based
         lli maskBlack , maskRed;
+        bool movedHuman,movedCPU;
     public:
         Point *P[ MX + 10 ];
+        vector < int > adjMove[MX+2];// Built on Node BoardId
+        vector < int > adjJump[MX+2];// Built on Node BoardId
+        int idInB[40]; /// 0 based id in Board
+        int idInM[100];/// 0 based
+        PieceBoardInfo pInfo;
+
         PieceBoard();
         enum { Type = UserType + 4 };
         int type() const { return Type; }
@@ -73,7 +76,7 @@ class PieceBoard : public QGraphicsObject{
         void play();
 
         void MovePoint(int src,int dest);// Move a point from source to destination
-
+        void MovePoint1(int src,int dest);
     private:
         Point *source;
         Point *destination;

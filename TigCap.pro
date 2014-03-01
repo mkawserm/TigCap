@@ -27,4 +27,5 @@ HEADERS  += tigcap.h \
     piece.h \
     edge.h \
     _Tester.h \
-    _macro.h
+    _macro.h \
+    gamestate.h
