@@ -230,12 +230,12 @@ PieceBoard::PieceBoard()
 
 
     //Demonstration How To Initiate Computer Move Sequence
-    P[1]->setBLACK();
-    P[10]->setBLACK();
-    this->computer_moves.append ( qMakePair(1,66) );
-    this->computer_moves.append ( qMakePair(10,12) );
-    whose_turn = ComputerTurn;
-    this->startComputerMove();
+    //P[1]->setBLACK();
+    //P[10]->setBLACK();
+    //this->computer_moves.append ( qMakePair(1,66) );
+    //this->computer_moves.append ( qMakePair(10,12) );
+    //whose_turn = ComputerTurn;
+    //this->startComputerMove();
 
     rep(i,MX)
     {
@@ -290,6 +290,8 @@ void PieceBoard::play()
             out << tmp.lastMoveSeq[j] ;
             if( !j ) continue;
             d = tmp.lastMoveSeq[j];
+             computer_moves.append ( qMakePair(s,d) );
+             computer_moves.append ( qMakePair(d,s) );
 
             //MovePoint( s , d );
             //MovePoint1( d , s );
@@ -305,6 +307,8 @@ void PieceBoard::play()
             //MovePoint(pi[j].second,pi[j].first);
         }
     }
+    whose_turn = ComputerTurn;
+    startComputerMove();
 
 }
 
