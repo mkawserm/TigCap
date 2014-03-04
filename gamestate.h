@@ -17,19 +17,20 @@ public:
 class GameState
 {
 private:
-    lli mask[2]; /// black , red
+
     int nb,nr,moveAfter11;
 
     PieceBoardInfo *Board;
 public:
+    lli mask[2]; /// black , red
     GameState *temp , *bestJump , *bestJump1 , *bestJump2;
     vector < GameState > child;
     vector < int > lastMoveSeq; /// board id
-    GameState(data aa ,data bb , PieceBoardInfo *x)
+    GameState(data aa ,data bb , PieceBoardInfo *x,int BB = 16,int RR = 16)
     {
         mask[0] = aa;
         mask[1] = bb;
-        nb = nr = 16;
+        nb = BB , nr = RR;
         moveAfter11 = 0;
         child.clear() , lastMoveSeq.clear();
         Board = x;
@@ -48,78 +49,77 @@ public:
         mask[0] = mask[1] = nb = nr = moveAfter11 = 0;
         child.clear() , lastMoveSeq.clear();
     }
+    /// parameter    : Board ID
+    /// return value : Board ID
     int midBoardPos( int posA , int posB )
     {
-        int ax,ay,bx,by,mx,my,mid,pos;
+        int ax,ay,bx,by,mx,my,mid;
         _setXY( ax , ay , posA );
         _setXY( bx , by , posB );
         mx = ( ax + bx ) >> 1 , my = ( ay + by ) >> 1;
         mid = _getTot( mx , my );
-        pos = Board->idInM[ mid ];
-        return pos;
+        return mid;
     }
-    inline bool _redInMid( int posA , int posB )
+    inline bool _redInMid( int posA , int posB , lli masK)
     {
-        return _isOn( mask[1] , midBoardPos( posA , posB ) );
+        return _isOn( masK , Board->idInM[ midBoardPos( posA , posB ) ] );
     }
-    inline bool _blackInMid( int posA , int posB )
+    inline bool _blackInMid( int posA , int posB , lli masK )
     {
-        return _isOn( mask[0] , midBoardPos( posA , posB ) );
+        return _isOn( masK , Board->idInM[ midBoardPos( posA , posB ) ] );
     }
-    void setChildState( lli maskB , lli maskR , int u , int v , int b , int r ) /// set everything necessary , red+black
+    /// set everything necessary , red+black [ Only Adjacent Move ]
+    void setChildState( lli maskB , lli maskR , int posU , int posV , int b , int r )
     {
-        if( SZ( lastMoveSeq ) == 0 )    lastMoveSeq.pb( u ) , lastMoveSeq.pb( v );
-        else    lastMoveSeq.pb( v );
+        if( SZ( lastMoveSeq ) == 0 )    lastMoveSeq.pb( posU ) , lastMoveSeq.pb( posV );
+        else    lastMoveSeq.pb( posV );
         int flag = 0;
+        int u = Board->idInM[ posU ] ;
+        int v = Board->idInM[ posV ] ;
         if( _isOn( maskB , u ) )
         {
             mask[0] = maskB ;
-            u = Board->idInM[ u ] ;
-
             mask[0] = _flipAt( mask[0] , u );
-            v = Board->idInM[ v ] ;
             mask[0] = _flipAt( mask[0] , v );
+            mask[1] = maskR; /// ERROR FIX : Implementation
             flag++;
         }
         if( _isOn( maskR , u ) )
         {
             mask[1] = maskR ;
-            u = Board->idInM[ u ] ;
             mask[1] = _flipAt( mask[1] , u );
-            v = Board->idInM[ v ] ;
             mask[1] = _flipAt( mask[1] , v );
+            mask[0] = maskB; /// ERROR FIX : Implementation
             flag++;
         }
         if( flag == 2 ) { printf("Error in setChildState\n");}
         nb = b , nr = r;
     }
-    void setElim( lli maskB , lli maskR , int u , int v , int b , int r )       /// set everything necessary , red+black
+    /// set everything necessary , red+black [ Only Elimination Move ]
+    void setElim( lli maskB , lli maskR , int posU , int posV , int b , int r )
     {
-        if( SZ( lastMoveSeq ) == 0 ) lastMoveSeq.pb( u ) , lastMoveSeq.pb( v );
-        else lastMoveSeq.pb( v );
+        if( SZ( lastMoveSeq ) == 0 ) lastMoveSeq.pb( posU ) , lastMoveSeq.pb( posV );
+        else lastMoveSeq.pb( posV );
         int flag = 0;
         nb = b , nr = r;
-        if( _isOn( maskB , u ) ) /// Elim red
+        int m = Board->idInM[ midBoardPos( posU , posV ) ];
+        int u = Board->idInM[ posU ] ;
+        int v = Board->idInM[ posV ] ;
+        if( _isOn( maskB , u ) ) /// Elim Red
         {
-            int m = Board->idInM[ midBoardPos( u , v ) ];
             mask[0] = maskB ;
-            u = Board->idInM[ u ] ;
             mask[0] = _flipAt( mask[0] , u );
-            v = Board->idInM[ v ] ;
             mask[0] = _flipAt( mask[0] , v );
-            mask[1] = _flipAt( mask[1] , m );
+            mask[1] = _flipAt( maskR , m );
             nr--;
             flag++;
         }
         if( _isOn( maskR , u ) ) /// Elim black
         {
-            int m = Board->idInM[ midBoardPos( u , v ) ];
             mask[1] = maskB ;
-            u = Board->idInM[ u ] ;
             mask[1] = _flipAt( mask[1] , u );
-            v = Board->idInM[ v ] ;
             mask[1] = _flipAt( mask[1] , v );
-            mask[0] = _flipAt( mask[0] , m );
+            mask[0] = _flipAt( maskB , m );
             nb--;
             flag++;
         }
@@ -140,47 +140,46 @@ public:
         return 1;
         //return rand() * ( nb - nr ) ; //:P
     }
-
+    /// To Fix: take care about the opposite mask, remains unchanged
     void moveSearchBlack()
     {
-        int i,j,I,J,uPos,uX,uY,vPos,vX,vY, sz;
+        int i,I,posU,vPos,sz;
+        //int j,J,uX,uY,vX,vY;
         temp = new GameState(0,0,Board);
         bestJump = new GameState(0,0,Board);
         bestJump1 = new GameState(0,0,Board);
         bestJump2 = new GameState(0,0,Board);
         rep(I,38)
         {
-            //GameState *temp = new GameState(0,0,Board) , *bestJump =new GameState(0,0,Board) ,
-              //      *bestJump1 = new GameState(0,0,Board) , *bestJump2 = new GameState(0,0,Board);
             if( _isOn( mask[0] , I ) )
             {
-                uPos = Board->idInB[ I ] ;
-                _setXY( uX , uY , uPos ) ;
-                sz = SZ( Board->adjMove[ uPos ] );
+                posU = Board->idInB[ I ] ;
+                //_setXY( uX , uY , posU ) ;
+                sz = SZ( Board->adjMove[ posU ] );
                 rep(i,sz) /// Traversing Neighbour
                 {
-                    vPos = Board->adjMove[ uPos ][ i ];
-                    _setXY( vX , vY , vPos );
+                    vPos = Board->adjMove[ posU ][ i ];
+                    //_setXY( vX , vY , vPos );
                     if( _isEmpty( vPos ) )
                     {
-                        //if( uPos == 29 ) out << "here" << vPos;
                         temp->flushPointer();
-                        temp->setChildState( mask[0] , mask[1] , uPos , vPos , nb , nr );
+                        temp->setChildState( mask[0] , mask[1] , posU , vPos , nb , nr );
                         child.pb( *temp );
                     }
                 }
-                //*
-                sz = SZ( Board->adjJump[ uPos ] );
+                //* Search Jumps
+                /// Jump 1
+                sz = SZ( Board->adjJump[ posU ] );
                 bestJump->flushPointer();
                 data Hval = -inf;
-                rep(i,sz) /// Traversing Eliminations
+                rep(i,sz) /// Traversing Eliminations 1
                 {
-                    vPos = Board->adjJump[ uPos ][ i ];
-                    _setXY( vX , vY , vPos );
-                    if( _isEmpty( vPos ) && _redInMid( uPos , vPos ) )
+                    vPos = Board->adjJump[ posU ][ i ];
+                    //_setXY( vX , vY , vPos );
+                    if( _isEmpty( vPos ) && _redInMid( posU , vPos , mask[1] ) )
                     {
                         temp->flushPointer();
-                        temp->setElim( mask[0] , mask[1] , uPos , vPos , nb , nr );
+                        temp->setElim( mask[0] , mask[1] , posU , vPos , nb , nr );
                         data val = temp->Heuristic();
                         if( val > Hval ) Hval = val , bestJump = temp;
                     }
@@ -189,48 +188,64 @@ public:
                 {
                     continue;
                 }
-                int uuPos = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
-                sz = SZ( Board->adjJump[ uuPos ] );
+                /// Jump 2
+                lli curMaskB = bestJump->mask[0];
+                lli curMaskR = bestJump->mask[1];
+                int posUU = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
+                sz = SZ( Board->adjJump[ posUU ] );
                 bestJump1->flushPointer();
                 Hval = -inf;
-                rep(i,sz) /// Traversing Eliminations
+                rep(i,sz) /// Traversing Eliminations 2
                 {
-                    vPos = Board->adjJump[ uuPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) && _redInMid( uuPos , vPos ) )
+                    vPos = Board->adjJump[ posUU ][ i ];
+                    //_setXY( vX , vY , vPos );
+                    if( vPos == posU ) continue;
+                    if( _isEmptyCur( vPos ) && _redInMid( posUU , vPos , curMaskR ) )
                     {
                         temp->flushPointer();
-                        temp->setElim( mask[0] , mask[1] , uuPos , vPos , nb , nr );
+                        temp->lastMoveSeq.push_back(posU); /// New Edit
+                        temp->lastMoveSeq.push_back(posUU);
+                        //temp->setElim( mask[0] , mask[1] , posUU , vPos , nb , nr );
+                        temp->setElim( curMaskB , curMaskR , posUU , vPos , nb , nr );
                         data val = temp->Heuristic();
                         if( val > Hval ) Hval = val , bestJump1 = temp;
                     }
                 }
+                //if( posU == 33 ) out<<bestJump1->lastMoveSeq.back() << bestJump1->mask[0];
+                // THIS WAS A VERY TRICKY RUN TIME ERROR
                 if( ! bestJump1->mask[0] )
                 {
                     child.pb( *bestJump );
                     continue;
                 }
                 bestJump = bestJump1;
+                /// Jump 3
 
-                int uuuPos = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
-                sz = SZ( Board->adjJump[ uuuPos ] );
+                curMaskB = bestJump->mask[0];
+                curMaskR = bestJump->mask[1];
+
+                int posUUU = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
+                sz = SZ( Board->adjJump[ posUUU ] );
                 bestJump2->flushPointer();
                 Hval = -inf;
-                rep(i,sz) /// Traversing Eliminations
+                rep(i,sz) /// Traversing Eliminations 3
                 {
-                    vPos = Board->adjJump[ uuuPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) && _redInMid( uuuPos , vPos ) )
+                    vPos = Board->adjJump[ posUUU ][ i ];
+                    //_setXY( vX , vY , vPos );
+                    if( vPos == posUU ) continue;
+                    if( _isEmptyCur( vPos ) && _redInMid( posUUU , vPos ,curMaskR ) )
                     {
                         temp->flushPointer();
-                        temp->setElim( mask[0] , mask[1] , uuuPos , vPos , nb , nr );
+                        temp->lastMoveSeq.push_back(posU); /// new edit
+                        temp->lastMoveSeq.push_back(posUU);
+                        temp->lastMoveSeq.push_back(posUUU);
+                        //temp->setElim( mask[0] , mask[1] , posUUU , vPos , nb , nr );
+                        temp->setElim( curMaskB , curMaskR , posUUU , vPos , nb , nr );
+
                         data val = temp->Heuristic();
                         if( val > Hval ) Hval = val , bestJump2 = temp;
                     }
                 }
-
                 if( !bestJump2->mask[0] )
                 {
                     child.pb( *bestJump ) ;
@@ -246,93 +261,6 @@ public:
 
     void moveSearchRed()
     {
-        GameState *temp , *bestJump , *bestJump1 , *bestJump2;
-        int i,j,I,J,uPos,uX,uY,vPos,vX,vY, sz;
-        rep(I,38)
-        {
-            if( _isOn( mask[1] , I ) ) // differ
-            {
-                uPos = Board->idInB[ I ] ;
-                _setXY( uX , uY , uPos ) ;
-                sz = SZ( Board->adjMove[ uPos ] );
-                rep(i,sz) /// Traversing Neighbour
-                {
-                    vPos = Board->adjMove[ uPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) )
-                    {
-                        temp->setChildState( mask[0] , mask[1] , uPos , vPos , nb , nr );
-                        child.pb( *temp );
-                    }
-                }
-
-                sz = SZ( Board->adjJump[ uPos ] );
-                bestJump;
-                data Hval = inf; // differ
-                rep(i,sz) /// Traversing Eliminations
-                {
-                    vPos = Board->adjJump[ uPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) && _blackInMid( uPos , vPos ) ) // differ
-                    {
-                        temp->setElim( mask[0] , mask[1] , uPos , vPos , nb , nr );
-                        data val = temp->Heuristic();
-                        if( val  < Hval ) Hval = val , bestJump = temp;
-                    }
-                }
-                if( ! bestJump->mask[0] ) return;
-                int uuPos = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
-                sz = SZ( Board->adjJump[ uuPos ] );
-                bestJump1;
-                Hval = inf; //differ
-                rep(i,sz) /// Traversing Eliminations
-                {
-                    vPos = Board->adjJump[ uuPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) && _blackInMid( uuPos , vPos ) ) // differ
-                    {
-                        temp->setElim( mask[0] , mask[1] , uuPos , vPos , nb , nr );
-                        data val = temp->Heuristic();
-                        if( val < Hval ) Hval = val , bestJump1 = temp;
-                    }
-                }
-                if( ! bestJump1->mask[0] )
-                {
-                    child.pb( *bestJump );
-                    return;
-                }
-                bestJump = bestJump1;
-
-                int uuuPos = bestJump->lastMoveSeq.back(); /// It's for sure, there is a last move
-                sz = SZ( Board->adjJump[ uuuPos ] );
-                bestJump2;
-                Hval = inf; // differ
-                rep(i,sz) /// Traversing Eliminations
-                {
-                    vPos = Board->adjJump[ uuuPos ][ i ];
-                    _setXY( vX , vY , vPos );
-
-                    if( _isEmpty( vPos ) && _blackInMid( uuuPos , vPos ) ) //differ
-                    {
-                        temp->setElim( mask[0] , mask[1] , uuuPos , vPos , nb , nr );
-                        data val = temp->Heuristic();
-                        if( val < Hval ) Hval = val , bestJump2 = temp;
-                    }
-                }
-
-                if( !bestJump2->mask[0] )
-                {
-                    child.pb( *bestJump ) ;
-                    return;
-                }
-                bestJump = bestJump2;
-                child.pb( *bestJump );
-                return;
-            }
-        }
     }
 
     void setAdj( bool blackMove )

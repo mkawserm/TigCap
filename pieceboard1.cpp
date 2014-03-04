@@ -4,20 +4,7 @@
 
 
 using namespace std;
-void PieceBoard:: pushMove(int a , int b)
-{
-    computer_moves.append( qMakePair( a , b ) );
-}
-void PieceBoard:: startMove()
-{
-    whose_turn = ComputerTurn;
-    startComputerMove();
-    //whose_turn = HumanTurn;
-}
-void PieceBoard:: clearMove()
-{
-    computer_moves.clear();
-}
+
 void PieceBoard:: debugPrintGraph()
 {
     int i,j;
@@ -48,21 +35,8 @@ void PieceBoard:: debugPrintGraph()
     //*/ Set the Jumps manually and Check All
     out << "Checking Graphs :";
     rep(i,nVertexMesh)
-    //for(i=24;i<=24;i++)
     {
         if( idInM[i] == -1 ) continue;
-        rep(j,SZ( adjMove[i] ))
-        {
-            //pushMove( i , adjMove[i][j] );
-            //pushMove( adjMove[i][j] , i );
-        }
-
-        rep(j,SZ( adjJump[i] ))
-        {
-            //pushMove( i , adjJump[i][j] );
-            //pushMove( adjJump[i][j] , i );
-        }
-        /*
         out << i << SZ( adjMove[i] ) << SZ( adjJump[i] );
         rep(j,SZ( adjMove[i] ))
                 out << "ad: " << adjMove[i][j];
@@ -70,9 +44,7 @@ void PieceBoard:: debugPrintGraph()
         rep(j,SZ( adjJump[i] ))
                 out << "Jump:" << adjJump[i][j];
         out<< "End Node";
-        //*/
     }
-    //startMove();
     //*/
 }
 
@@ -234,11 +206,6 @@ PieceBoard::PieceBoard()
             }
         }
     }
-    rep(i,nVertexBrd) sort( all( adjJump[idInB[i]] ) ) , sort( all( adjMove[idInB[i]] ) );
-    adjJump[30].erase(lower_bound(all(adjJump[30]),16));
-    adjJump[32].erase(lower_bound(all(adjJump[32]),18));
-    adjJump[44].erase(lower_bound(all(adjJump[44]),58));
-    adjJump[46].erase(lower_bound(all(adjJump[46]),60));
     /// Calculating Jump End
 
     qDebug() << drawGraph();
@@ -261,15 +228,13 @@ PieceBoard::PieceBoard()
     }
 
 
-
-    //Demonstration How To Initiate Computer Move Sequence
+    //calling play
+    //this->play();
+    //this->MovePoint(10,12);
     //P[1]->setBLACK();
-    //P[10]->setBLACK();
-    //this->computer_moves.append ( qMakePair(1,66) );
-    //this->computer_moves.append ( qMakePair(10,12) );
-    //whose_turn = ComputerTurn;
-    //this->startComputerMove();
-
+    //this->MovePoint(1,66);
+    //P[16]->setBLACK();
+    //this->MovePoint(16,12);
     rep(i,MX)
     {
         pInfo.adjJump[i] = adjJump[i];
@@ -321,48 +286,49 @@ void PieceBoard::play()
     out << "here I am" ;
     int i;
     placePieceInit();
-    //return;
-    //debugMoveInMask(45,38); /// check this error
+    debugMoveInMask(45,38);
     debugMoveInMask(47,40);
-    //debugMoveInMask(32,39);
+   // debugMoveInMask(31,37);
     //return;
     GameState curState( maskBlack , maskRed , &pInfo );
     out << curState.isTerminal();
-    GameState tmp( 0 , 0 , NULL );
-    int sz;
+    GameState tmp( 0 , 0 , NULL ); int sz;
     curState.setAdj( true );
 
     sz = SZ( curState.child );
     out << "total child" << sz ;
     int s,d,j;
-    vector < pair < int , int > > vpi;
+    vector < pair < int , int > > pi;
     rep(i,sz)
-    //for(i=sz-4;i<=sz-4;i++)
     {
-
         tmp = curState.child[i];
-        out << " maskeRed " << tmp.mask[1] << i << sz-1;
         //out << idInB[i] << "->" << SZ( adjMove[ idInB[i] ] ) << SZ( tmp.lastMoveSeq );
-        if( ! SZ( tmp.lastMoveSeq ) ) ;//continue;
-        else s = tmp.lastMoveSeq[0];
-
+        //if( ! SZ( tmp.lastMoveSeq ) ) continue;
+        s = tmp.lastMoveSeq[0];
+        out<<s;
         rep(j,SZ( tmp.lastMoveSeq ) )
         {
             //out << tmp.lastMoveSeq[j] ;
             if( !j ) continue;
             d = tmp.lastMoveSeq[j];
-            computer_moves.append ( qMakePair(s,d) );
-            vpi.push_back( make_pair( s , d) );
+            out << s <<"to"<< d;
+            //MovePoint( s , d );
+            int it=0
+                    ;
+            while(it--);
+            //MovePoint( d , s );
+            //MovePoint( d , s );
+            pi.push_back(make_pair(s,d));
             s = d;
         }
-        reverse( all( vpi ) );
-        rep(j,SZ( vpi )) computer_moves.append( qMakePair( vpi[j].second , vpi[j].first ) );
-        vpi.clear();
-        //computer_moves.clear();
+        reverse( pi.begin() , pi.end() );
+        int k = 1000000;
+        while(k--);
+        rep(j,SZ(pi))
+        {
+            //MovePoint(pi[j].second,pi[j].first);
+        }
     }
-    whose_turn = ComputerTurn;
-    startComputerMove();
-
 
 }
 
@@ -402,12 +368,7 @@ void PieceBoard::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWid
 void PieceBoard::MovePoint(int src, int dest){
     source = this->P[src];
     destination = this->P[dest];
-
-
     animobject = new Point(source->x(),source->y(),this);
-
-    //animobject->setZValue(0.3);
-
 
     if (source->isBlack() ) animobject->setBLACK();
     else if(source->isRed() ) animobject->setRED();
@@ -415,58 +376,21 @@ void PieceBoard::MovePoint(int src, int dest){
     source->setBoardVertex();//Make it a board Vertex
 
 
-
     qDebug() << "Inside MovePoint";
-    //qDebug() << source->x();
-    //qDebug() << destination->x();
 
     QPropertyAnimation *animation = new QPropertyAnimation(animobject, "pos");
     animation->setDuration(1000);
     animation->setEndValue(destination->pos());
     this->connect(animation, SIGNAL(finished()), this ,SLOT(animation_finished()) );
-
     animation->start();
-    movedHuman = true;
 }
 
 
-
-
-void PieceBoard::startComputerMove(){
-    if (whose_turn == ComputerTurn){
-
-            if ( !this->computer_moves.isEmpty() ){
-                QPair<int,int> temp = this->computer_moves.at(0);
-                this->MovePoint(temp.first,temp.second);
-            }
-
-    }
-
-}
 
 
 
 void PieceBoard::animation_finished(){
     qDebug() << "called animation finished";
-
     if ( animobject->isBlack() ) destination->setBLACK();
     else if (animobject->isRed() ) destination->isRed();
-    //animobject->setBoardVertex();
-    delete animobject;
-
-
-    if(whose_turn == ComputerTurn ){
-        this->computer_moves.takeFirst();
-        if ( !this->computer_moves.isEmpty() ){
-            QPair<int,int> temp = this->computer_moves.at(0);
-            this->MovePoint(temp.first,temp.second);
-        }
-        else{
-            whose_turn = HumanTurn;
-        }
-
-
-
-    }
 }
-

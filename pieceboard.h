@@ -75,11 +75,12 @@ class PieceBoard : public QGraphicsObject{
         bool drawGraph(); // check duplicity of edge
         void showP( int x );
         void debugPrintGraph();
-
+        void debugMoveInMask(int a,int b);
         void placePieceInit();
         void play();
 
         void MovePoint(int src,int dest);// Move a point from source to destination
+        ///Warnig: this moves only valid moves, will not work properly for all arbitrary moves
     private:
         Point *source;
         Point *destination;
@@ -89,6 +90,7 @@ class PieceBoard : public QGraphicsObject{
         void animation_finished();
 
     private:
+        /// WARNING: Must call after void placePieceInit();
         /* Here is the idea how will animate Computer
         * move sequence one after another.
         * We will cretae a QList< QPair<int,int> > where we will
@@ -99,7 +101,9 @@ class PieceBoard : public QGraphicsObject{
     QList < QPair<int,int> > computer_moves;
     enum Turn {HumanTurn,ComputerTurn};
     Turn whose_turn;
-
+    void pushMove( int a , int b );
+    void clearMove();
+    void startMove();
     public:
         void startComputerMove();
 };

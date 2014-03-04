@@ -15,10 +15,12 @@ const data LOSE = -inf;
 #define pb push_back
 #define rep(i,a) for( i = 0 ; i < (a) ; i++ )
 #define SZ( x ) ((int) x.size())
+#define all( x )  x.begin() , x.end()
 
 #define _flipAt( x , i ) ( (x) ^ (1LL<<i))
 #define _isOn( x , i ) ( (x) & ( 1LL<<i ) )
 #define _isEmpty( a ) ( !_isOn( mask[0] , Board->idInM[a] ) && !_isOn( mask[1] , Board->idInM[a] ) )
+#define _isEmptyCur( a ) ( !_isOn( curMaskB , Board->idInM[a] ) && !_isOn( curMaskR , Board->idInM[a] ) )
 /// XY in graphics convention
 #define _setXY( x , y , tot ) ( x = (tot) % 7 , y = (tot) / 7 )
 #define _getTot( x , y ) ( y * 7 + x )
